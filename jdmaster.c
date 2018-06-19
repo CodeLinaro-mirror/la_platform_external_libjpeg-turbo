@@ -33,9 +33,10 @@
 LOCAL(boolean)
 use_merged_upsample (j_decompress_ptr cinfo)
 {
+    return FALSE;
 #ifdef UPSAMPLE_MERGING_SUPPORTED
   /* Merging is the equivalent of plain box-filter upsampling */
-  if (cinfo->do_fancy_upsampling || cinfo->CCIR601_sampling || cinfo->disable_merged_upsampling)
+  if (cinfo->do_fancy_upsampling || cinfo->CCIR601_sampling)
     return FALSE;
   /* jdmerge.c only supports YCC=>RGB and YCC=>RGB565 color conversion */
   if (cinfo->jpeg_color_space != JCS_YCbCr || cinfo->num_components != 3 ||
