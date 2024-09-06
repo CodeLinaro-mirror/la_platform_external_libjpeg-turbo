@@ -13,6 +13,10 @@
  * This file defines the application interface for the JPEG library.
  * Most applications using the library need only include this file,
  * and perhaps jerror.h if they want to know the exact error codes.
+ *
+ * Changes from Qualcomm Technologies, Inc. are provided under the following license:
+ * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+ * SPDX-License-Identifier: BSD-3-Clause-Clear
  */
 
 #ifndef JPEGLIB_H
@@ -43,6 +47,11 @@ extern "C" {
 #endif
 #endif
 
+/* QTI_BEGIN */
+#ifdef QC_JPEG_MT
+#include "qcjpegcode.h"
+#endif
+/* QTI_END */
 
 /* Various constants determining the sizes of things.
  * All of these are specified by the JPEG standard, so don't change them

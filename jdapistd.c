@@ -16,6 +16,10 @@
  * jpeg_start_decompress, it will end up linking in the entire decompressor.
  * We thus must separate this file from jdapimin.c to avoid linking the
  * whole decompression library into a transcoder.
+ *
+ * Changes from Qualcomm Technologies, Inc. are provided under the following license:
+ * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+ * SPDX-License-Identifier: BSD-3-Clause-Clear
  */
 
 #include "jinclude.h"
@@ -44,6 +48,14 @@ LOCAL(boolean) output_pass_setup(j_decompress_ptr cinfo);
 GLOBAL(boolean)
 jpeg_start_decompress(j_decompress_ptr cinfo)
 {
+  /* QTI_BEGIN */
+#ifdef QC_JPEG_MT
+  UI_PERF_CHECK
+  if(isPerfMode && cinfo && cinfo->err && cinfo->err->emit_message)
+     cinfo->err->emit_message(cinfo, QC_JPEG_DECODE_STAGES | QC_JPEG_DECODE_START_DECOMPRESS);
+#endif
+  /* QTI_END */
+
   if (cinfo->global_state == DSTATE_READY) {
     /* First call: initialize master control, select active modules */
     jinit_master_decompress(cinfo);

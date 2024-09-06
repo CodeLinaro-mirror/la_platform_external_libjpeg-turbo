@@ -21,6 +21,10 @@
  *
  * NOTE: All referenced figures are from
  * Recommendation ITU-T T.81 (1992) | ISO/IEC 10918-1:1994.
+ *
+ * Changes from Qualcomm Technologies, Inc. are provided under the following license:
+ * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+ * SPDX-License-Identifier: BSD-3-Clause-Clear
  */
 
 #define JPEG_INTERNALS
@@ -141,6 +145,11 @@ typedef struct {
   savable_state cur;            /* Current bit buffer & DC state */
   j_compress_ptr cinfo;         /* dump_buffer needs access to this */
   int simd;
+  /* QTI_BEGIN */
+#ifdef QC_JPEG_MT
+  unsigned int rm_buf_ov;
+#endif
+  /* QTI_END */
 } working_state;
 
 
@@ -337,12 +346,23 @@ jpeg_make_c_derived_tbl(j_compress_ptr cinfo, boolean isDC, int tblno,
 /* Outputting bytes to the file */
 
 /* Emit a byte, taking 'action' if must suspend. */
+#ifdef QC_JPEG_MT
+#define emit_byte(state, val, action) { \
+  *(state)->next_output_byte++ = (JOCTET)(val); \
+  if (--(state)->free_in_buffer == 0) { \
+    if (!dump_buffer(state)) \
+      { action; } \
+    state->rm_buf_ov = state->rm_buf_ov +1; \
+  } \
+}
+#else
 #define emit_byte(state, val, action) { \
   *(state)->next_output_byte++ = (JOCTET)(val); \
   if (--(state)->free_in_buffer == 0) \
     if (!dump_buffer(state)) \
       { action; } \
 }
+#endif
 
 
 LOCAL(boolean)
@@ -470,6 +490,30 @@ dump_buffer(working_state *state)
     buffer = state->next_output_byte; \
 }
 
+#ifdef QC_JPEG_MT
+#define STORE_BUFFER() { \
+  if (localbuf) { \
+    size_t bytes, bytestocopy; \
+    bytes = buffer - _buffer; \
+    buffer = _buffer; \
+    while (bytes > 0) { \
+      bytestocopy = MIN(bytes, state->free_in_buffer); \
+      memcpy(state->next_output_byte, buffer, bytestocopy); \
+      state->next_output_byte += bytestocopy; \
+      buffer += bytestocopy; \
+      state->free_in_buffer -= bytestocopy; \
+      if (state->free_in_buffer == 0) { \
+        if (!dump_buffer(state)) return FALSE; \
+        state->rm_buf_ov = state->rm_buf_ov + 1; \
+      } \
+      bytes -= bytestocopy; \
+    } \
+  } else { \
+    state->free_in_buffer -= (buffer - state->next_output_byte); \
+    state->next_output_byte = buffer; \
+  } \
+}
+#else
 #define STORE_BUFFER() { \
   if (localbuf) { \
     size_t bytes, bytestocopy; \
@@ -490,6 +534,7 @@ dump_buffer(working_state *state)
     state->next_output_byte = buffer; \
   } \
 }
+#endif
 
 
 LOCAL(boolean)
@@ -696,11 +741,32 @@ encode_mcu_huff(j_compress_ptr cinfo, JBLOCKROW *MCU_data)
   state.cinfo = cinfo;
   state.simd = entropy->simd;
 
+  /* QTI_BEGIN */
+#ifdef QC_JPEG_MT
+  state.rm_buf_ov = 0;
+  UI_PERF_CHECK
+#endif
+  /* QTI_END */
+
   /* Emit restart marker if needed */
   if (cinfo->restart_interval) {
-    if (entropy->restarts_to_go == 0)
-      if (!emit_restart(&state, entropy->next_restart_num))
+    if (entropy->restarts_to_go == 0) {
+      if (!emit_restart(&state, entropy->next_restart_num)) {
         return FALSE;
+      } else {
+        /* QTI_BEGIN */
+#ifdef QC_JPEG_MT
+        if (isPerfMode && cinfo && cinfo->err && cinfo->err->emit_message) {
+            cinfo->err->msg_parm.i[0] = state.rm_buf_ov;
+            cinfo->err->msg_parm.i[1] = state.free_in_buffer;
+            cinfo->err->emit_message(cinfo,
+                                     QC_JPEG_ENCODE_STAGES | QC_JPEG_ENCODE_ENCODE_MCU_HUFF_1);
+            state.rm_buf_ov = 0;
+        }
+#endif
+        /* QTI_END */
+      }
+    }
   }
 
   /* Encode the MCU data blocks */
@@ -715,6 +781,16 @@ encode_mcu_huff(j_compress_ptr cinfo, JBLOCKROW *MCU_data)
         return FALSE;
       /* Update last_dc_val */
       state.cur.last_dc_val[ci] = MCU_data[blkn][0][0];
+
+      /* QTI_BEGIN */
+#ifdef QC_JPEG_MT
+      if(isPerfMode && cinfo && cinfo->err && cinfo->err->emit_message) {
+          cinfo->err->msg_parm.i[0] = state.rm_buf_ov;
+          cinfo->err->emit_message(cinfo, QC_JPEG_ENCODE_STAGES | QC_JPEG_ENCODE_ENCODE_MCU_HUFF_2);
+          state.rm_buf_ov = 0;
+      }
+#endif
+      /* QTI_END */
     }
   } else {
     for (blkn = 0; blkn < cinfo->blocks_in_MCU; blkn++) {

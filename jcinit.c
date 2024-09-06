@@ -16,6 +16,10 @@
  * linking this routine implies linking the entire compression library.
  * For a transcoding-only application, we want to be able to use jcmaster.c
  * without linking in the whole library.
+ *
+ * Changes from Qualcomm Technologies, Inc. are provided under the following license:
+ * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+ * SPDX-License-Identifier: BSD-3-Clause-Clear
  */
 
 #define JPEG_INTERNALS
@@ -35,6 +39,14 @@ jinit_compress_master(j_compress_ptr cinfo)
 {
   /* Initialize master control (includes parameter checking/processing) */
   jinit_c_master_control(cinfo, FALSE /* full compression */);
+
+ /* QTI_BEGIN */
+#ifdef QC_JPEG_MT
+  UI_PERF_CHECK
+  if(isPerfMode && cinfo && cinfo->err && cinfo->err->emit_message)
+      cinfo->err->emit_message(cinfo, QC_JPEG_ENCODE_STAGES | QC_JPEG_ENCODE_JINT_COMPRESS_MASTER);
+#endif
+  /* QTI_END */
 
   /* Preprocessing */
   if (!cinfo->raw_data_in) {
