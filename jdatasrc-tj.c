@@ -16,6 +16,10 @@
  * IMPORTANT: we assume that fread() will correctly transcribe an array of
  * JOCTETs from 8-bit-wide elements on external storage.  If char is wider
  * than 8 bits on your machine, you may need to do some tweaking.
+ *
+ * Changes from Qualcomm Technologies, Inc. are provided under the following license:
+ * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+ * SPDX-License-Identifier: BSD-3-Clause-Clear
  */
 
 /* this is not a core library module, so it doesn't define JPEG_INTERNALS */
@@ -123,6 +127,15 @@ skip_input_data(j_decompress_ptr cinfo, long num_bytes)
        * so suspension need not be handled.
        */
     }
+
+    /* QTI_BEGIN */
+#ifdef QC_JPEG_MT
+    UI_PERF_CHECK
+    if(isPerfMode && cinfo && cinfo->err && cinfo->err->emit_message)
+       cinfo->err->emit_message(cinfo, QC_JPEG_DECODE_STAGES | QC_JPEG_DECODE_SKIP_INPUT_DATA_TJ);
+#endif
+    /* QTI_END */
+
     src->next_input_byte += (size_t)num_bytes;
     src->bytes_in_buffer -= (size_t)num_bytes;
   }
