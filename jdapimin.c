@@ -17,6 +17,10 @@
  * are in this file or in jdapistd.c.  But also see jcomapi.c for routines
  * shared by compression and decompression, and jdtrans.c for the transcoding
  * case.
+ *
+ * Changes from Qualcomm Technologies, Inc. are provided under the following license:
+ * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+ * SPDX-License-Identifier: BSD-3-Clause-Clear
  */
 
 #define JPEG_INTERNALS
@@ -102,6 +106,13 @@ jpeg_CreateDecompress(j_decompress_ptr cinfo, int version, size_t structsize)
 GLOBAL(void)
 jpeg_destroy_decompress(j_decompress_ptr cinfo)
 {
+  /* QTI_BEGIN */
+#ifdef QC_JPEG_MT
+  UI_PERF_CHECK
+  if(isPerfMode && cinfo && cinfo->err && cinfo->err->emit_message)
+     cinfo->err->emit_message(cinfo, QC_JPEG_DECODE_STAGES | QC_JPEG_DECODE_DESTROY_DECOMPRESS);
+#endif
+  /* QTI_END */
   jpeg_destroy((j_common_ptr)cinfo); /* use common routine */
 }
 
@@ -252,6 +263,13 @@ default_decompress_parms(j_decompress_ptr cinfo)
 GLOBAL(int)
 jpeg_read_header(j_decompress_ptr cinfo, boolean require_image)
 {
+  /* QTI_BEGIN */
+#ifdef QC_JPEG_MT
+  UI_PERF_CHECK
+  if(isPerfMode && cinfo && cinfo->err && cinfo->err->emit_message)
+     cinfo->err->emit_message(cinfo, QC_JPEG_DECODE_STAGES | QC_JPEG_DECODE_READ_HEADER);
+#endif
+  /* QTI_END */
   int retcode;
 
   if (cinfo->global_state != DSTATE_START &&
