@@ -10,6 +10,10 @@
  * file.
  *
  * This file contains routines to write JPEG datastream markers.
+ *
+ * Changes from Qualcomm Technologies, Inc. are provided under the following license:
+ * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+ * SPDX-License-Identifier: BSD-3-Clause-Clear
  */
 
 #define JPEG_INTERNALS
@@ -119,6 +123,13 @@ emit_byte(j_compress_ptr cinfo, int val)
   if (--dest->free_in_buffer == 0) {
     if (!(*dest->empty_output_buffer) (cinfo))
       ERREXIT(cinfo, JERR_CANT_SUSPEND);
+    /* QTI_BEGIN */
+#ifdef QC_JPEG_MT
+    UI_PERF_CHECK
+    if(isPerfMode && cinfo && cinfo->err && cinfo->err->emit_message)
+       cinfo->err->emit_message(cinfo, QC_JPEG_ENCODE_STAGES | QC_JPEG_ENCODE_EMIT_BYTE);
+#endif
+    /* QTI_END */
   }
 }
 

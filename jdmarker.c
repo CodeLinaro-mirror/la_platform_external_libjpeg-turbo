@@ -15,6 +15,10 @@
  * suspension: if not all of the data for a marker is available,
  * we must exit back to the application.  On resumption, we reprocess
  * the marker.
+ *
+ * Changes from Qualcomm Technologies, Inc. are provided under the following license:
+ * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+ * SPDX-License-Identifier: BSD-3-Clause-Clear
  */
 
 #define JPEG_INTERNALS
@@ -965,6 +969,13 @@ first_marker(j_decompress_ptr cinfo)
 METHODDEF(int)
 read_markers(j_decompress_ptr cinfo)
 {
+  /* QTI_BEGIN */
+#ifdef QC_JPEG_MT
+  boolean read_start_info = TRUE;
+  UI_PERF_CHECK
+#endif
+  /* QTI_END */
+
   /* Outer loop repeats once for each marker. */
   for (;;) {
     /* Collect the marker proper, unless we already did. */
@@ -978,6 +989,17 @@ read_markers(j_decompress_ptr cinfo)
           return JPEG_SUSPENDED;
       }
     }
+
+    /* QTI_BEGIN */
+#ifdef QC_JPEG_MT
+    if (read_start_info) {
+      if(isPerfMode && cinfo && cinfo->err && cinfo->err->emit_message)
+         cinfo->err->emit_message(cinfo, QC_JPEG_DECODE_STAGES | QC_JPEG_DECODE_READ_MARKERS_1);
+      read_start_info = FALSE;
+    }
+#endif
+    /* QTI_END */
+
     /* At this point cinfo->unread_marker contains the marker code and the
      * input point is just past the marker proper, but before any parameters.
      * A suspension will cause us to return with this state still true.
@@ -1075,6 +1097,13 @@ read_markers(j_decompress_ptr cinfo)
       break;
 
     case M_COM:
+      /* QTI_BEGIN */
+#ifdef QC_JPEG_MT
+      if(isPerfMode && cinfo && cinfo->err && cinfo->err->emit_message)
+         cinfo->err->emit_message(cinfo, QC_JPEG_DECODE_STAGES | QC_JPEG_DECODE_READ_MARKERS_2);
+#endif
+      /* QTI_END */
+
       if (!(*((my_marker_ptr)cinfo->marker)->process_COM) (cinfo))
         return JPEG_SUSPENDED;
       break;

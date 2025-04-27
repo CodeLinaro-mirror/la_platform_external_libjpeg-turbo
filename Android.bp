@@ -273,6 +273,12 @@ cc_defaults {
             ],
         },
     },
+
+    product_variables: {
+        debuggable: {
+            cflags: ["-DQC_JPEG_MT"],
+        },
+    },
 }
 
 // Build as a shared library.
