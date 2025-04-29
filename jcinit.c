@@ -44,7 +44,8 @@ jinit_compress_master(j_compress_ptr cinfo)
 #ifdef QC_JPEG_MT
   UI_PERF_CHECK
   if(isPerfMode && cinfo && cinfo->err && cinfo->err->emit_message)
-      cinfo->err->emit_message(cinfo, QC_JPEG_ENCODE_STAGES | QC_JPEG_ENCODE_JINT_COMPRESS_MASTER);
+      cinfo->err->emit_message((j_common_ptr)(cinfo),
+                               QC_JPEG_ENCODE_STAGES | QC_JPEG_ENCODE_JINT_COMPRESS_MASTER);
 #endif
   /* QTI_END */
 

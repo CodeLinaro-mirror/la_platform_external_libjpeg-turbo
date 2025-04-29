@@ -994,7 +994,8 @@ read_markers(j_decompress_ptr cinfo)
 #ifdef QC_JPEG_MT
     if (read_start_info) {
       if(isPerfMode && cinfo && cinfo->err && cinfo->err->emit_message)
-         cinfo->err->emit_message(cinfo, QC_JPEG_DECODE_STAGES | QC_JPEG_DECODE_READ_MARKERS_1);
+         cinfo->err->emit_message((j_common_ptr)(cinfo),
+                                  QC_JPEG_DECODE_STAGES | QC_JPEG_DECODE_READ_MARKERS_1);
       read_start_info = FALSE;
     }
 #endif
@@ -1100,7 +1101,8 @@ read_markers(j_decompress_ptr cinfo)
       /* QTI_BEGIN */
 #ifdef QC_JPEG_MT
       if(isPerfMode && cinfo && cinfo->err && cinfo->err->emit_message)
-         cinfo->err->emit_message(cinfo, QC_JPEG_DECODE_STAGES | QC_JPEG_DECODE_READ_MARKERS_2);
+         cinfo->err->emit_message((j_common_ptr)(cinfo),
+                                  QC_JPEG_DECODE_STAGES | QC_JPEG_DECODE_READ_MARKERS_2);
 #endif
       /* QTI_END */
 

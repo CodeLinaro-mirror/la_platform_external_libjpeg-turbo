@@ -198,7 +198,8 @@ jpeg_finish_compress(j_compress_ptr cinfo)
 #ifdef QC_JPEG_MT
   UI_PERF_CHECK
   if(isPerfMode && cinfo && cinfo->err && cinfo->err->emit_message)
-      cinfo->err->emit_message(cinfo, QC_JPEG_ENCODE_STAGES | QC_JPEG_ENCODE_FINISH_COMPRESS);
+      cinfo->err->emit_message((j_common_ptr)(cinfo),
+                              QC_JPEG_ENCODE_STAGES | QC_JPEG_ENCODE_FINISH_COMPRESS);
 #endif
   /* QTI_END */
   (*cinfo->dest->term_destination) (cinfo);
@@ -231,7 +232,8 @@ jpeg_write_marker(j_compress_ptr cinfo, int marker, const JOCTET *dataptr,
 #ifdef QC_JPEG_MT
   UI_PERF_CHECK
   if(isPerfMode && marker == 254 && cinfo && cinfo->err && cinfo->err->emit_message)
-      cinfo->err->emit_message(cinfo, QC_JPEG_ENCODE_STAGES | QC_JPEG_ENCODE_WRITE_MARKER);
+      cinfo->err->emit_message((j_common_ptr)(cinfo),
+                                QC_JPEG_ENCODE_STAGES | QC_JPEG_ENCODE_WRITE_MARKER);
 #endif
   /* QTI_END */
   write_marker_byte = cinfo->marker->write_marker_byte; /* copy for speed */
