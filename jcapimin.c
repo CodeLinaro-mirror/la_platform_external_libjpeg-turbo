@@ -18,6 +18,10 @@
  * are in this file or in jcapistd.c.  But also see jcparam.c for
  * parameter-setup helper routines, jcomapi.c for routines shared by
  * compression and decompression, and jctrans.c for the transcoding case.
+ *
+ * Changes from Qualcomm Technologies, Inc. are provided under the following license:
+ * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+ * SPDX-License-Identifier: BSD-3-Clause-Clear
  */
 
 #define JPEG_INTERNALS
@@ -190,6 +194,13 @@ jpeg_finish_compress(j_compress_ptr cinfo)
   }
   /* Write EOI, do final cleanup */
   (*cinfo->marker->write_file_trailer) (cinfo);
+  /* QTI_BEGIN */
+#ifdef QC_JPEG_MT
+  UI_PERF_CHECK
+  if(isPerfMode && cinfo && cinfo->err && cinfo->err->emit_message)
+      cinfo->err->emit_message(cinfo, QC_JPEG_ENCODE_STAGES | QC_JPEG_ENCODE_FINISH_COMPRESS);
+#endif
+  /* QTI_END */
   (*cinfo->dest->term_destination) (cinfo);
   /* We can use jpeg_abort to release memory and reset global_state */
   jpeg_abort((j_common_ptr)cinfo);
@@ -216,6 +227,13 @@ jpeg_write_marker(j_compress_ptr cinfo, int marker, const JOCTET *dataptr,
     ERREXIT1(cinfo, JERR_BAD_STATE, cinfo->global_state);
 
   (*cinfo->marker->write_marker_header) (cinfo, marker, datalen);
+  /* QTI_BEGIN */
+#ifdef QC_JPEG_MT
+  UI_PERF_CHECK
+  if(isPerfMode && marker == 254 && cinfo && cinfo->err && cinfo->err->emit_message)
+      cinfo->err->emit_message(cinfo, QC_JPEG_ENCODE_STAGES | QC_JPEG_ENCODE_WRITE_MARKER);
+#endif
+  /* QTI_END */
   write_marker_byte = cinfo->marker->write_marker_byte; /* copy for speed */
   while (datalen--) {
     (*write_marker_byte) (cinfo, *dataptr);

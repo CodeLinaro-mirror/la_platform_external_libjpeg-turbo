@@ -13,6 +13,10 @@
  * jpeg_start_compress, it will end up linking in the entire compressor.
  * We thus must separate this file from jcapimin.c to avoid linking the
  * whole compression library into a transcoder.
+ *
+ * Changes from Qualcomm Technologies, Inc. are provided under the following license:
+ * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+ * SPDX-License-Identifier: BSD-3-Clause-Clear
  */
 
 #define JPEG_INTERNALS
@@ -38,6 +42,14 @@
 GLOBAL(void)
 jpeg_start_compress(j_compress_ptr cinfo, boolean write_all_tables)
 {
+  /* QTI_BEGIN */
+#ifdef QC_JPEG_MT
+  UI_PERF_CHECK
+  if(isPerfMode && cinfo && cinfo->err && cinfo->err->emit_message)
+      cinfo->err->emit_message(cinfo, QC_JPEG_ENCODE_STAGES | QC_JPEG_ENCODE_START_COMPRESS_1);
+#endif
+  /* QTI_END */
+
   if (cinfo->global_state != CSTATE_START)
     ERREXIT1(cinfo, JERR_BAD_STATE, cinfo->global_state);
 
@@ -47,6 +59,14 @@ jpeg_start_compress(j_compress_ptr cinfo, boolean write_all_tables)
   /* (Re)initialize error mgr and destination modules */
   (*cinfo->err->reset_error_mgr) ((j_common_ptr)cinfo);
   (*cinfo->dest->init_destination) (cinfo);
+
+  /* QTI_BEGIN */
+#ifdef QC_JPEG_MT
+  if(isPerfMode && cinfo && cinfo->err && cinfo->err->emit_message)
+      cinfo->err->emit_message(cinfo, QC_JPEG_ENCODE_STAGES | QC_JPEG_ENCODE_START_COMPRESS_2);
+#endif
+  /* QTI_END */
+
   /* Perform master selection of active modules */
   jinit_compress_master(cinfo);
   /* Set up for the first pass */
@@ -56,6 +76,13 @@ jpeg_start_compress(j_compress_ptr cinfo, boolean write_all_tables)
    */
   cinfo->next_scanline = 0;
   cinfo->global_state = (cinfo->raw_data_in ? CSTATE_RAW_OK : CSTATE_SCANNING);
+
+  /* QTI_BEGIN */
+#ifdef QC_JPEG_MT
+  if(isPerfMode && cinfo && cinfo->err && cinfo->err->emit_message)
+      cinfo->err->emit_message(cinfo, QC_JPEG_ENCODE_STAGES | QC_JPEG_ENCODE_START_COMPRESS_3);
+#endif
+  /* QTI_END */
 }
 
 
