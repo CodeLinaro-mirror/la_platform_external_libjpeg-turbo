@@ -127,7 +127,8 @@ emit_byte(j_compress_ptr cinfo, int val)
 #ifdef QC_JPEG_MT
     UI_PERF_CHECK
     if(isPerfMode && cinfo && cinfo->err && cinfo->err->emit_message)
-       cinfo->err->emit_message(cinfo, QC_JPEG_ENCODE_STAGES | QC_JPEG_ENCODE_EMIT_BYTE);
+       cinfo->err->emit_message((j_common_ptr)(cinfo),
+                                QC_JPEG_ENCODE_STAGES | QC_JPEG_ENCODE_EMIT_BYTE);
 #endif
     /* QTI_END */
   }

@@ -110,7 +110,8 @@ jpeg_destroy_decompress(j_decompress_ptr cinfo)
 #ifdef QC_JPEG_MT
   UI_PERF_CHECK
   if(isPerfMode && cinfo && cinfo->err && cinfo->err->emit_message)
-     cinfo->err->emit_message(cinfo, QC_JPEG_DECODE_STAGES | QC_JPEG_DECODE_DESTROY_DECOMPRESS);
+     cinfo->err->emit_message((j_common_ptr)(cinfo),
+                              QC_JPEG_DECODE_STAGES | QC_JPEG_DECODE_DESTROY_DECOMPRESS);
 #endif
   /* QTI_END */
   jpeg_destroy((j_common_ptr)cinfo); /* use common routine */
@@ -267,7 +268,8 @@ jpeg_read_header(j_decompress_ptr cinfo, boolean require_image)
 #ifdef QC_JPEG_MT
   UI_PERF_CHECK
   if(isPerfMode && cinfo && cinfo->err && cinfo->err->emit_message)
-     cinfo->err->emit_message(cinfo, QC_JPEG_DECODE_STAGES | QC_JPEG_DECODE_READ_HEADER);
+     cinfo->err->emit_message((j_common_ptr)(cinfo),
+                              QC_JPEG_DECODE_STAGES | QC_JPEG_DECODE_READ_HEADER);
 #endif
   /* QTI_END */
   int retcode;

@@ -759,8 +759,8 @@ encode_mcu_huff(j_compress_ptr cinfo, JBLOCKROW *MCU_data)
         if (isPerfMode && cinfo && cinfo->err && cinfo->err->emit_message) {
             cinfo->err->msg_parm.i[0] = state.rm_buf_ov;
             cinfo->err->msg_parm.i[1] = state.free_in_buffer;
-            cinfo->err->emit_message(cinfo,
-                                     QC_JPEG_ENCODE_STAGES | QC_JPEG_ENCODE_ENCODE_MCU_HUFF_1);
+            cinfo->err->emit_message((j_common_ptr)(cinfo),
+                                    QC_JPEG_ENCODE_STAGES | QC_JPEG_ENCODE_ENCODE_MCU_HUFF_1);
             state.rm_buf_ov = 0;
         }
 #endif
@@ -786,7 +786,8 @@ encode_mcu_huff(j_compress_ptr cinfo, JBLOCKROW *MCU_data)
 #ifdef QC_JPEG_MT
       if(isPerfMode && cinfo && cinfo->err && cinfo->err->emit_message) {
           cinfo->err->msg_parm.i[0] = state.rm_buf_ov;
-          cinfo->err->emit_message(cinfo, QC_JPEG_ENCODE_STAGES | QC_JPEG_ENCODE_ENCODE_MCU_HUFF_2);
+          cinfo->err->emit_message((j_common_ptr)(cinfo),
+                                   QC_JPEG_ENCODE_STAGES | QC_JPEG_ENCODE_ENCODE_MCU_HUFF_2);
           state.rm_buf_ov = 0;
       }
 #endif
