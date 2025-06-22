@@ -52,7 +52,8 @@ jpeg_start_decompress(j_decompress_ptr cinfo)
 #ifdef QC_JPEG_MT
   UI_PERF_CHECK
   if(isPerfMode && cinfo && cinfo->err && cinfo->err->emit_message)
-     cinfo->err->emit_message(cinfo, QC_JPEG_DECODE_STAGES | QC_JPEG_DECODE_START_DECOMPRESS);
+     cinfo->err->emit_message((j_common_ptr)(cinfo),
+                              QC_JPEG_DECODE_STAGES | QC_JPEG_DECODE_START_DECOMPRESS);
 #endif
   /* QTI_END */
 
