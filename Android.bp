@@ -46,6 +46,8 @@ cc_defaults {
         "-Werror",
         "-Wno-sign-compare",
         "-Wno-unused-parameter",
+
+        "-DQC_JPEG_MT",
     ],
     srcs: [
         "jaricom.c",
@@ -271,12 +273,6 @@ cc_defaults {
             asflags: [
                 "-DWIN64",
             ],
-        },
-    },
-
-    product_variables: {
-        debuggable: {
-            cflags: ["-DQC_JPEG_MT"],
         },
     },
 }

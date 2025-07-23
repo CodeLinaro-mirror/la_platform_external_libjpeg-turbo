@@ -46,7 +46,8 @@ jpeg_start_compress(j_compress_ptr cinfo, boolean write_all_tables)
 #ifdef QC_JPEG_MT
   UI_PERF_CHECK
   if(isPerfMode && cinfo && cinfo->err && cinfo->err->emit_message)
-      cinfo->err->emit_message(cinfo, QC_JPEG_ENCODE_STAGES | QC_JPEG_ENCODE_START_COMPRESS_1);
+      cinfo->err->emit_message((j_common_ptr)(cinfo),
+                               QC_JPEG_ENCODE_STAGES | QC_JPEG_ENCODE_START_COMPRESS_1);
 #endif
   /* QTI_END */
 
@@ -63,7 +64,8 @@ jpeg_start_compress(j_compress_ptr cinfo, boolean write_all_tables)
   /* QTI_BEGIN */
 #ifdef QC_JPEG_MT
   if(isPerfMode && cinfo && cinfo->err && cinfo->err->emit_message)
-      cinfo->err->emit_message(cinfo, QC_JPEG_ENCODE_STAGES | QC_JPEG_ENCODE_START_COMPRESS_2);
+      cinfo->err->emit_message((j_common_ptr)(cinfo),
+                               QC_JPEG_ENCODE_STAGES | QC_JPEG_ENCODE_START_COMPRESS_2);
 #endif
   /* QTI_END */
 
@@ -80,7 +82,8 @@ jpeg_start_compress(j_compress_ptr cinfo, boolean write_all_tables)
   /* QTI_BEGIN */
 #ifdef QC_JPEG_MT
   if(isPerfMode && cinfo && cinfo->err && cinfo->err->emit_message)
-      cinfo->err->emit_message(cinfo, QC_JPEG_ENCODE_STAGES | QC_JPEG_ENCODE_START_COMPRESS_3);
+      cinfo->err->emit_message((j_common_ptr)(cinfo),
+                               QC_JPEG_ENCODE_STAGES | QC_JPEG_ENCODE_START_COMPRESS_3);
 #endif
   /* QTI_END */
 }

@@ -185,7 +185,8 @@ skip_input_data(j_decompress_ptr cinfo, long num_bytes)
 #ifdef QC_JPEG_MT
     UI_PERF_CHECK
     if(isPerfMode && cinfo && cinfo->err && cinfo->err->emit_message)
-       cinfo->err->emit_message(cinfo, QC_JPEG_DECODE_STAGES | QC_JPEG_DECODE_SKIP_INPUT_DATA);
+       cinfo->err->emit_message((j_common_ptr)(cinfo),
+                                QC_JPEG_DECODE_STAGES | QC_JPEG_DECODE_SKIP_INPUT_DATA);
 #endif
     /* QTI_END */
     src->next_input_byte += (size_t)num_bytes;
