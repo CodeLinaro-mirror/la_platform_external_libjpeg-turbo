@@ -284,10 +284,14 @@ cc_library {
     defaults: ["libjpeg-defaults"],
     export_include_dirs: ["."],
     target: {
+        linux_glibc: {
+            enabled: true,
+        },
         windows: {
             enabled: true,
         },
     },
+    sdk_version: "current",
 }
 
 // Build static library against the NDK
